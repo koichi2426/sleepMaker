@@ -19,9 +19,6 @@ def create_video(image_path, audio_path, output_path, duration_minutes):
     # Set the audio to the image clip
     video_clip = image_clip.set_audio(audio_clip)
 
-    # Ensure the audio is correctly set to the video
-    video_clip = video_clip.set_audio(audio_clip)
-
     # Write the result to an mp4 file
     video_clip.write_videofile(output_path, fps=24, codec='libx264', audio_codec='aac')
 
@@ -33,7 +30,7 @@ duration_minutes = 1  # duration in minutes
 
 # Get the image and audio files (assuming there's only one of each in the folder)
 image_files = [f for f in os.listdir(image_folder) if f.endswith('.webp')]
-audio_files = [f for f in os.listdir(audio_folder) if f.endswith('.mp3')]
+audio_files = [f for f in os.listdir(audio_folder) if f.endswith('.mp3') or f.endswith('.wav')]
 
 if image_files and audio_files:
     image_path = os.path.join(image_folder, image_files[0])
