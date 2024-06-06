@@ -5,12 +5,20 @@ def create_thumbnail(image_path, text, font, fontsize, color, position, output_p
     # 画像ファイルを読み込む
     image_clip = ImageClip(image_path)
     
-    # 画像にテキストを追加する
-    txt_clip = TextClip(text, fontsize=fontsize, color=color, font=font, size=image_clip.size)
+    # テキストに影を付ける
+    txt_shadow = TextClip(text, fontsize=fontsize, color='black', font=font)
+    if isinstance(position, tuple):
+        shadow_position = (position[0] + 2, position[1] + 2)
+    else:
+        shadow_position = position
+    txt_shadow = txt_shadow.set_position(shadow_position).set_duration(image_clip.duration)
+    
+    # テキストクリップを作成する
+    txt_clip = TextClip(text, fontsize=fontsize, color=color, font=font)
     txt_clip = txt_clip.set_position(position).set_duration(image_clip.duration)
-
-    # テキストを画像にオーバーレイする
-    composite_clip = CompositeVideoClip([image_clip, txt_clip])
+    
+    # 画像にテキストと影をオーバーレイする
+    composite_clip = CompositeVideoClip([image_clip, txt_shadow, txt_clip])
     
     # 結果を保存する
     composite_clip.save_frame(output_path)
@@ -47,12 +55,22 @@ output_folder = 'output_folder'
 duration_minutes = 1  # 動画の長さ（分）
 
 # サムネイルに追加するテキストの詳細をユーザーから入力する（デフォルト値を設定）
-text = input("サムネイルに追加するテキストを入力してください（デフォルト: '睡眠BGM'）: ") or "睡眠BGM"
-font = input("フォントを入力してください（デフォルト: 'Arial'）: ") or "Arial"
+text = input("サムネイルに追加するテキストを入力してください（デフォルト: 'Fantastic BGM'）: ") or "Fantastic BGM"
+font = input("フォントを入力してください（デフォルト: 'Papyrus' または 'Brush Script MT'）: ") or "Papyrus"
 fontsize = input("フォントサイズを入力してください（デフォルト: 70）: ") or 70
 fontsize = int(fontsize)  # フォントサイズを整数に変換
-color = input("テキストの色を入力してください（デフォルト: 'white'）: ") or "white"
-position = input("テキストの位置を入力してください（デフォルト: 'center'）: ") or "center"
+color = input("テキストの色を入力してください（デフォルト: 'lightblue'）: ") or "lightblue"
+position_input = input("テキストの位置を入力してください（デフォルト: 'center'）: ") or "center"
+
+# 位置をタプルに変換する（例: 'center' -> ('center', 'center')）
+position_mapping = {
+    'center': 'center',
+    'top': ('center', 'top'),
+    'bottom': ('center', 'bottom'),
+    'left': ('left', 'center'),
+    'right': ('right', 'center')
+}
+position = position_mapping.get(position_input, 'center')
 
 # 画像とオーディオファイルを取得する（フォルダに1つだけあると仮定）
 image_files = [f for f in os.listdir(image_folder) if f.endswith('.webp') or f.endswith('.png')]
