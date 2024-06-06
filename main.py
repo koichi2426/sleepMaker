@@ -26,7 +26,7 @@ def create_video(image_path, audio_path, output_path, duration_minutes):
 image_folder = 'image_folder'
 audio_folder = 'audio_folder'
 output_folder = 'output_folder'
-duration_minutes = 1  # duration in minutes
+duration_minutes = 120  # duration in minutes
 
 # Get the image and audio files (assuming there's only one of each in the folder)
 image_files = [f for f in os.listdir(image_folder) if f.endswith('.webp')]
