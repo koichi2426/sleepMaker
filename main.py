@@ -57,7 +57,6 @@ def create_video_with_thumbnail(image_path, audio_path, output_path, duration_mi
 image_folder = 'image_folder'
 audio_folder = 'audio_folder'
 output_folder = 'output_folder'
-duration_minutes = 1  # 動画の長さ（分）
 
 # サムネイルに追加するテキストの詳細をユーザーから入力する（デフォルト値を設定）
 text = input("サムネイルに追加するテキストを入力してください（デフォルト: 'Fantastic BGM'）: ") or "Fantastic BGM"
@@ -67,6 +66,8 @@ fontsize = int(fontsize)  # フォントサイズを整数に変換
 color = input("テキストの色を入力してください（デフォルト: 'lightblue'）: ") or "lightblue"
 position_input = input("テキストの位置を入力してください（デフォルト: 'center'）: ") or "center"
 weight = input("テキストの太さを入力してください（デフォルト: 'regular' または 'bold'）: ") or "regular"
+duration_minutes = input("動画の長さを分単位で入力してください（デフォルト: 1）: ") or 1
+duration_minutes = int(duration_minutes)
 
 # 位置をタプルに変換する（例: 'center' -> ('center', 'center')）
 position_mapping = {
