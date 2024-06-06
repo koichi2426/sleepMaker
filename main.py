@@ -1,35 +1,61 @@
 import os
 from moviepy.editor import *
 
-def create_video(image_path, audio_path, output_path, duration_minutes):
-    # Convert duration from minutes to seconds
+def create_thumbnail(image_path, text, font, fontsize, color, position, output_path):
+    # 画像ファイルを読み込む
+    image_clip = ImageClip(image_path)
+    
+    # 画像にテキストを追加する
+    txt_clip = TextClip(text, fontsize=fontsize, color=color, font=font, size=image_clip.size)
+    txt_clip = txt_clip.set_position(position).set_duration(image_clip.duration)
+
+    # テキストを画像にオーバーレイする
+    composite_clip = CompositeVideoClip([image_clip, txt_clip])
+    
+    # 結果を保存する
+    composite_clip.save_frame(output_path)
+
+def create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position):
+    # 分を秒に変換する
     duration = duration_minutes * 60
 
-    # Load the image and audio files
-    image_clip = ImageClip(image_path).set_duration(duration)
+    # テキスト付きのサムネイルを作成する
+    thumbnail_path = "thumbnail_with_text.png"
+    create_thumbnail(image_path, text, font, fontsize, color, position, thumbnail_path)
+    
+    # 修正された画像とオーディオファイルを読み込む
+    image_clip = ImageClip(thumbnail_path).set_duration(duration)
     audio_clip = AudioFileClip(audio_path)
 
-    # Calculate the number of loops required for the audio
+    # オーディオのループ回数を計算する
     audio_duration = audio_clip.duration
     loops = int(duration / audio_duration) + 1
 
-    # Loop the audio to match the duration of the video
+    # オーディオをループして動画の長さに合わせる
     audio_clip = concatenate_audioclips([audio_clip] * loops).subclip(0, duration)
 
-    # Set the audio to the image clip
+    # 画像クリップにオーディオを設定する
     video_clip = image_clip.set_audio(audio_clip)
 
-    # Write the result to an mp4 file
+    # 結果をmp4ファイルとして書き出す
     video_clip.write_videofile(output_path, fps=24, codec='libx264', audio_codec='aac')
 
-# Define the paths and duration
+# パスと動画の長さを定義する
 image_folder = 'image_folder'
 audio_folder = 'audio_folder'
 output_folder = 'output_folder'
-duration_minutes = 120  # duration in minutes
+duration_minutes = 1  # 動画の長さ（分）
 
-# Get the image and audio files (assuming there's only one of each in the folder)
-image_files = [f for f in os.listdir(image_folder) if f.endswith('.webp')]
+# サムネイルに追加するテキストの詳細をユーザーから入力する（デフォルト値を設定）
+text = input("サムネイルに追加するテキストを入力してください（デフォルト: '睡眠BGM'）: ") or "睡眠BGM"
+font = input("フォントを入力してください（デフォルト: 'Arial'）: ") or "Arial"
+fontsize = input("フォントサイズを入力してください（デフォルト: 70）: ") or 70
+fontsize = int(fontsize)  # フォントサイズを整数に変換
+color = input("テキストの色を入力してください（デフォルト: 'white'）: ") or "white"
+position = input("テキストの位置を入力してください（デフォルト: 'center'）: ") or "center"
+
+# 画像とオーディオファイルを取得する（フォルダに1つだけあると仮定）
+image_files = [f for f in os.listdir(image_folder) if f.endswith('.webp') or f.endswith('.png')]
 audio_files = [f for f in os.listdir(audio_folder) if f.endswith('.mp3') or f.endswith('.wav')]
 
 if image_files and audio_files:
@@ -37,7 +63,7 @@ if image_files and audio_files:
     audio_path = os.path.join(audio_folder, audio_files[0])
     output_path = os.path.join(output_folder, 'output_video.mp4')
 
-    # Create the video
-    create_video(image_path, audio_path, output_path, duration_minutes)
+    # サムネイル付きの動画を作成する
+    create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position)
 else:
-    print("No image or audio files found in the specified folders.")
+    print("指定されたフォルダに画像またはオーディオファイルが見つかりません。")
