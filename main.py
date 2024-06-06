@@ -1,12 +1,17 @@
 import os
 from moviepy.editor import *
 
-def create_thumbnail(image_path, text, font, fontsize, color, position, output_path):
+def create_thumbnail(image_path, text, font, fontsize, color, position, output_path, weight):
     # 画像ファイルを読み込む
     image_clip = ImageClip(image_path)
     
+    # テキストのフォントファイルを設定する
+    font_file = font
+    if weight == 'bold':
+        font_file = font.replace('.ttf', '-Bold.ttf')
+    
     # テキストに影を付ける
-    txt_shadow = TextClip(text, fontsize=fontsize, color='black', font=font)
+    txt_shadow = TextClip(text, fontsize=fontsize, color='black', font=font_file)
     if isinstance(position, tuple):
         shadow_position = (position[0] + 2, position[1] + 2)
     else:
@@ -14,7 +19,7 @@ def create_thumbnail(image_path, text, font, fontsize, color, position, output_p
     txt_shadow = txt_shadow.set_position(shadow_position).set_duration(image_clip.duration)
     
     # テキストクリップを作成する
-    txt_clip = TextClip(text, fontsize=fontsize, color=color, font=font)
+    txt_clip = TextClip(text, fontsize=fontsize, color=color, font=font_file)
     txt_clip = txt_clip.set_position(position).set_duration(image_clip.duration)
     
     # 画像にテキストと影をオーバーレイする
@@ -23,13 +28,13 @@ def create_thumbnail(image_path, text, font, fontsize, color, position, output_p
     # 結果を保存する
     composite_clip.save_frame(output_path)
 
-def create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position):
+def create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position, weight):
     # 分を秒に変換する
     duration = duration_minutes * 60
 
     # テキスト付きのサムネイルを作成する
     thumbnail_path = "thumbnail_with_text.png"
-    create_thumbnail(image_path, text, font, fontsize, color, position, thumbnail_path)
+    create_thumbnail(image_path, text, font, fontsize, color, position, thumbnail_path, weight)
     
     # 修正された画像とオーディオファイルを読み込む
     image_clip = ImageClip(thumbnail_path).set_duration(duration)
@@ -57,10 +62,11 @@ duration_minutes = 1  # 動画の長さ（分）
 # サムネイルに追加するテキストの詳細をユーザーから入力する（デフォルト値を設定）
 text = input("サムネイルに追加するテキストを入力してください（デフォルト: 'Fantastic BGM'）: ") or "Fantastic BGM"
 font = input("フォントを入力してください（デフォルト: 'Papyrus' または 'Brush Script MT'）: ") or "Papyrus"
-fontsize = input("フォントサイズを入力してください（デフォルト: 70）: ") or 70
+fontsize = input("フォントサイズを入力してください（デフォルト: 150）: ") or 150
 fontsize = int(fontsize)  # フォントサイズを整数に変換
 color = input("テキストの色を入力してください（デフォルト: 'lightblue'）: ") or "lightblue"
 position_input = input("テキストの位置を入力してください（デフォルト: 'center'）: ") or "center"
+weight = input("テキストの太さを入力してください（デフォルト: 'regular' または 'bold'）: ") or "regular"
 
 # 位置をタプルに変換する（例: 'center' -> ('center', 'center')）
 position_mapping = {
@@ -82,6 +88,6 @@ if image_files and audio_files:
     output_path = os.path.join(output_folder, 'output_video.mp4')
 
     # サムネイル付きの動画を作成する
-    create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position)
+    create_video_with_thumbnail(image_path, audio_path, output_path, duration_minutes, text, font, fontsize, color, position, weight)
 else:
     print("指定されたフォルダに画像またはオーディオファイルが見つかりません。")
